@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Oswald:wght@700&display=swap"
+    rel="stylesheet">
+  <title>NPB 背番号・袖番号 記憶ゲーム</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="index.js" defer></script>
+</head>
+
+<body>
+  <div id="game-root">
+    <h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">
+      日本野球審判袖番号クイズゲーム
+    </h2>
+
+    <div id="start-screen">
+      <div id="glass-panel"></div>
+      <div id="start-header">
+        <div id="start-title">
+          <span id="title-npb">NPB</span>
+          <span id="title-main">選手背番号／審判袖番号</span>
+          <span id="title-sub">記憶ゲーム</span>
+        </div>
+        <p id="title-desc">選手・審判の名前が表示されます。できるだけ速く背番号・袖番号を入力してください。</p>
+      </div>
+      <div id="start-panel">
+        <div id="team-select">
+          <div id="mode-select">
+            <label>モード：</label>
+            <div id="mode-btns">
+              <button class="mode-btn selected" data-mode="manual">手動決定</button>
+              <button class="mode-btn" data-mode="auto">自動判定</button>
+            </div>
+          </div>
+          <label>球団：</label>
+          <div id="team-btns">
+            <button class="league-btn" data-league="all">すべて</button>
+            <div class="league-label"><button class="league-btn" data-league="central">セ・リーグ</button></div>
+            <button class="team-btn" data-file="tigers.json">阪神</button>
+            <button class="team-btn" data-file="baystars.json">DeNA</button>
+            <button class="team-btn" data-file="giants.json">巨人</button>
+            <button class="team-btn" data-file="dragons.json">中日</button>
+            <button class="team-btn" data-file="carp.json">広島</button>
+            <button class="team-btn" data-file="swallows.json">ヤクルト</button>
+            <div class="league-label"><button class="league-btn" data-league="pacific">パ・リーグ</button></div>
+            <button class="team-btn" data-file="hawks.json">ソフトバンク</button>
+            <button class="team-btn" data-file="fighters.json">日本ハム</button>
+            <button class="team-btn" data-file="buffaloes.json">オリックス</button>
+            <button class="team-btn" data-file="eagles.json">楽天</button>
+            <button class="team-btn" data-file="lions.json">西武</button>
+            <button class="team-btn" data-file="marines.json">ロッテ</button>
+            <div class="league-label">その他</div>
+            <button class="team-btn" data-file="umpires.json">審判</button>
+            <hr id="ikusei-divider">
+            <div class="league-label"><button class="league-btn" data-league="ikusei_all">育成 全球団</button></div>
+            <div class="league-label"><button class="league-btn" data-league="ikusei_central">セ・リーグ</button></div>
+            <button class="team-btn" data-file="datasets_ikusei/tigers_ikusei.json">阪神</button>
+            <button class="team-btn" data-file="datasets_ikusei/baystars_ikusei.json">DeNA</button>
+            <button class="team-btn" data-file="datasets_ikusei/giants_ikusei.json">巨人</button>
+            <button class="team-btn" data-file="datasets_ikusei/dragons_ikusei.json">中日</button>
+            <button class="team-btn" data-file="datasets_ikusei/carp_ikusei.json">広島</button>
+            <button class="team-btn" data-file="datasets_ikusei/swallows_ikusei.json">ヤクルト</button>
+            <div class="league-label"><button class="league-btn" data-league="ikusei_pacific">パ・リーグ</button></div>
+            <button class="team-btn" data-file="datasets_ikusei/hawks_ikusei.json">ソフトバンク</button>
+            <button class="team-btn" data-file="datasets_ikusei/fighters_ikusei.json">日本ハム</button>
+            <button class="team-btn" data-file="datasets_ikusei/buffaloes_ikusei.json">オリックス</button>
+            <button class="team-btn" data-file="datasets_ikusei/eagles_ikusei.json">楽天</button>
+            <button class="team-btn" data-file="datasets_ikusei/lions_ikusei.json">西武</button>
+            <button class="team-btn" data-file="datasets_ikusei/marines_ikusei.json">ロッテ</button>
+            <div class="league-label">その他</div>
+            <button class="team-btn" data-file="datasets_ikusei/umpires_ikusei.json">審判</button>
+          </div>
+        </div>
+        <div id="q-count-select">
+          <label>問題数：</label>
+          <div id="q-count-btns">
+            <button class="q-count-btn" data-count="5">5問</button>
+            <button class="q-count-btn selected" data-count="10">10問</button>
+            <button class="q-count-btn" data-count="20">20問</button>
+            <button class="q-count-btn" data-count="50">50問</button>
+            <button class="q-count-btn" data-count="100">100問</button>
+          </div>
+        </div>
+        <button id="start-btn">⚾ スタート</button>
+      </div><!-- start-panel閉じ -->
+    </div><!-- start-screen閉じ -->
+
+    <div id="game-screen" style="display:none;">
+      <div id="glass-panel"></div>
+      <div id="stats-row">
+        <div class="stat-card">
+          <p class="stat-label">問題</p>
+          <p class="stat-value" id="q-count">1 / 10</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-label">正解</p>
+          <p class="stat-value" id="score">0</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-label">平均タイム</p>
+          <p class="stat-value" id="avg-time">—</p>
+        </div>
+      </div>
+      <div id="question-box">
+        <p id="team-name">—</p>
+        <p id="umpire-name">—</p>
+        <p id="prompt-text">背番号を入力してください</p>
+      </div>
+      <div id="timer-bar-wrap">
+        <div id="timer-bar" style="width:100%"></div>
+      </div>
+      <div id="feedback"></div>
+      <div id="answer-area">
+        <input id="answer-input" type="number" min="1" max="99" placeholder="番号" autocomplete="off"
+          inputmode="numeric" />
+        <button id="submit-btn">決定</button>
+      </div>
+      <button id="quit-btn">やめる</button>
+    </div>
+
+    <div id="result-screen" style="display:none;">
+      <div id="glass-panel"></div>
+      <h2>結果</h2>
+      <div id="result-stats-row" class="stat-card"
+        style="display:flex;justify-content:space-around;padding:1rem;margin-bottom:1.5rem;border:0.5px solid var(--color-border-tertiary);">
+        <div>
+          <p class="stat-label">正解数</p>
+          <p class="stat-value" id="final-score">0/10</p>
+        </div>
+        <div>
+          <p class="stat-label">平均タイム</p>
+          <p class="stat-value" id="final-avg">—</p>
+        </div>
+        <div>
+          <p class="stat-label">最速</p>
+          <p class="stat-value" id="final-best">—</p>
+        </div>
+      </div>
+      <table id="result-table">
+        <thead>
+          <tr>
+            <th>球団</th>
+            <th>名前</th>
+            <th>番号</th>
+            <th>あなたの答え</th>
+            <th>タイム</th>
+            <th>結果</th>
+          </tr>
+        </thead>
+        <tbody id="result-body"></tbody>
+      </table>
+      <button id="retry-btn">もう一度</button>
+      <button id="home-btn">タイトルに戻る</button>
+    </div>
+
+  </div><!-- game-root閉じ -->
+</body>
+
+</html>
